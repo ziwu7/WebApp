@@ -1,14 +1,14 @@
 import { FC, observer } from 'web-cell';
 import { diffTime } from 'web-utility';
-import { Button } from 'boot-cell';
+import { Button, ButtonGroup } from 'boot-cell';
 
 import { TimeUnitName } from '../utility';
 import { DataItem, Organization } from '../service';
-import { session, BaseModel, VerifiableModel } from '../model';
+import { session, VerifiableModel } from '../model';
 
-export interface AuditBarProps extends DataItem, Organization {
+export interface AuditBarProps<T> extends DataItem, Organization {
     scope: string;
-    model: BaseModel;
+    model: VerifiableModel<T>;
 }
 
 const TimeStamp: FC<Record<'date' | 'phone' | 'label', string>> = ({
@@ -26,7 +26,7 @@ const TimeStamp: FC<Record<'date' | 'phone' | 'label', string>> = ({
     );
 };
 
-export const AuditBar: FC<AuditBarProps> = observer(props => {
+export const AuditBar = observer(function <T>(props: AuditBarProps<T>) {
     const {
         createdAt,
         updatedAt,
@@ -55,7 +55,7 @@ export const AuditBar: FC<AuditBarProps> = observer(props => {
                 />
             )}
             {authorized && (
-                <div className="btn-group d-flex mt-2">
+                <ButtonGroup className="d-flex mt-2">
                     <Button
                         variant="warning"
                         size="sm"
@@ -77,11 +77,11 @@ export const AuditBar: FC<AuditBarProps> = observer(props => {
                     <Button
                         variant="danger"
                         size="sm"
-                        onClick={() => model.delete(objectId)}
+                        onClick={() => model.deleteOne(objectId)}
                     >
                         删除
                     </Button>
-                </div>
+                </ButtonGroup>
             )}
         </>
     );

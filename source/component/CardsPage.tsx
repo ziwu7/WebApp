@@ -7,43 +7,42 @@ import {
     TouchHandler
 } from 'boot-cell';
 import { CustomElement } from 'web-utility';
+import { Filter } from 'mobx-restful';
 
 import { DistrictEvent, DistrictFilter, District } from './DistrictFilter';
 import { VerifiableModel, session } from '../model';
+import { DataItem } from '../service';
 
-export abstract class CardsPage<T>
+export abstract class CardsPage<T extends DataItem>
     extends HTMLElement
     implements CustomElement
 {
     abstract scope: string;
-    abstract model: VerifiableModel;
+    abstract model: VerifiableModel<T>;
     abstract name: string;
     districtFilter = false;
 
-    filter: District & { verified?: boolean } = {
+    filter = {
         verified: !session.hasRole('Admin')
-    };
+    } as Filter<T> & District & { verified?: boolean };
 
-    connectedCallback() {
-        this.model.getNextPage(this.filter);
+    disconnectedCallback() {
+        this.model.clear();
     }
 
     loadMore: TouchHandler = detail => {
-        if (detail === 'bottom') return this.model.getNextPage(this.filter);
+        if (detail === 'bottom') return this.model.getList(this.filter);
     };
 
     changeDistrict = ({ detail }: DistrictEvent) =>
-        this.model.getNextPage(
-            (this.filter = { ...detail, verified: this.filter.verified }),
-            true
-        );
+        this.model.getList((this.filter = { ...this.filter, ...detail }), 1);
 
     changeVerified = ({ target }: Event) => {
         const { checked } = target as HTMLInputElement;
 
         this.filter.verified = checked;
 
-        return this.model.getNextPage(this.filter, true);
+        return this.model.getList(this.filter, 1);
     };
 
     async clip2board(raw: string) {
@@ -56,7 +55,7 @@ export abstract class CardsPage<T>
 
     render() {
         const { name: title, scope, districtFilter } = this,
-            { loading, list, noMore } = this.model,
+            { downloading, allItems, noMore } = this.model,
             admin = session.hasRole('Admin');
 
         return (
@@ -81,11 +80,11 @@ export abstract class CardsPage<T>
                 </div>
                 <ScrollBoundary onTouch={this.loadMore}>
                     <SpinnerBox
-                        cover={loading}
+                        cover={downloading > 0}
                         className="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3"
                     >
-                        {list.map(item => (
-                            <div className="col">
+                        {allItems.map(item => (
+                            <div key={item.objectId} className="col">
                                 {this.renderItem(item as T)}
                             </div>
                         ))}

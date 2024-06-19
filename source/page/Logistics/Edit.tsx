@@ -24,11 +24,11 @@ export interface LogisticsEditProps {
     dataId: string;
 }
 
-export interface LogisticsEdit extends WebCell<LogisticsEditProps> {}
+export default interface LogisticsEdit extends WebCell<LogisticsEditProps> {}
 
 @component({ tagName: 'logistics-edit' })
 @observer
-export class LogisticsEdit
+export default class LogisticsEdit
     extends HTMLElement
     implements WebCell<LogisticsEditProps>
 {
@@ -45,7 +45,7 @@ export class LogisticsEdit
         contacts: [{ name: '', phone: '' }]
     } as Logistics;
 
-    async connectedCallback() {
+    async mountedCallback() {
         if (!this.dataId) return;
 
         const { name, url, serviceArea, remark, contacts } =
@@ -90,10 +90,12 @@ export class LogisticsEdit
 
         const { serviceArea, contacts, ...data } = this.state;
 
-        await logistics.update(
+        await logistics.updateOne(
             {
                 ...data,
+                // @ts-ignore
                 serviceArea: serviceArea.filter(({ city }) => city?.trim()),
+                // @ts-ignore
                 contacts: contacts.filter(
                     ({ name, phone }) => name?.trim() && phone?.trim()
                 )
@@ -112,7 +114,7 @@ export class LogisticsEdit
         return (
             <SessionBox>
                 <h2>物流信息发布</h2>
-                {/* @ts-ignore */}
+
                 <form onChange={this.changeText} onSubmit={this.handleSubmit}>
                     <FormField
                         name="name"
@@ -204,11 +206,11 @@ export class LogisticsEdit
                         defaultValue={remark}
                         label="备注"
                     />
-                    <div className="form-group mt-3 d-flex flex-column">
+                    <FormGroup className="mt-3 d-flex flex-column">
                         <Button
                             type="submit"
                             variant="primary"
-                            disabled={logistics.loading}
+                            disabled={logistics.uploading>0}
                         >
                             提交
                         </Button>
@@ -221,7 +223,7 @@ export class LogisticsEdit
                         >
                             取消
                         </Button>
-                    </div>
+                    </FormGroup>
                 </form>
             </SessionBox>
         );

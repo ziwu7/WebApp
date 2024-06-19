@@ -18,11 +18,11 @@ export interface ClinicEditProps {
     dataId?: string;
 }
 
-export interface ClinicEdit extends WebCell<ClinicEditProps> {}
+export default interface ClinicEdit extends WebCell<ClinicEditProps> {}
 
 @component({ tagName: 'clinic-edit' })
 @observer
-export class ClinicEdit
+export default class ClinicEdit
     extends HTMLElement
     implements WebCell<ClinicEditProps>
 {
@@ -40,7 +40,7 @@ export class ClinicEdit
         remark: ''
     } as Clinic;
 
-    async connectedCallback() {
+    async mountedCallback() {
         if (!this.dataId) return;
 
         const { name, url, contacts, startTime, endTime, remark } =
@@ -60,9 +60,10 @@ export class ClinicEdit
 
         const { contacts, ...data } = this.state;
 
-        await clinic.update(
+        await clinic.updateOne(
             {
                 ...data,
+                // @ts-ignore
                 contacts: contacts.filter(
                     ({ name, phone }) => name?.trim() && phone?.trim()
                 )
@@ -82,7 +83,7 @@ export class ClinicEdit
         return (
             <SessionBox>
                 <h2>义诊服务{dataId ? '发布' : '修改'}</h2>
-                {/* @ts-ignore */}
+
                 <form onChange={this.changeText} onSubmit={this.handleSubmit}>
                     <FormField
                         name="name"
@@ -131,11 +132,11 @@ export class ClinicEdit
                         defaultValue={remark}
                         label="备注"
                     />
-                    <div className="form-group mt-3 d-flex flex-column flex-sm-row">
+                    <FormGroup className="mt-3 d-flex flex-column flex-sm-row">
                         <Button
                             type="submit"
                             variant="primary"
-                            disabled={clinic.loading}
+                            disabled={clinic.uploading > 0}
                         >
                             提交
                         </Button>
@@ -146,7 +147,7 @@ export class ClinicEdit
                         >
                             取消
                         </Button>
-                    </div>
+                    </FormGroup>
                 </form>
             </SessionBox>
         );

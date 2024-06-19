@@ -1,8 +1,15 @@
 import { WebCell, component, attribute, observer } from 'web-cell';
 import { observable } from 'mobx';
 import { EChartsOption } from 'echarts';
+import 'echarts-jsx/dist/renderers/SVG';
+import 'echarts-jsx/dist/components/title';
+import 'echarts-jsx/dist/components/legend';
+import 'echarts-jsx/dist/components/tooltip';
+import 'echarts-jsx/dist/components/grid';
+import 'echarts-jsx/dist/components/x-axis';
+import 'echarts-jsx/dist/components/y-axis';
+import 'echarts-jsx/dist/charts/line';
 
-import { CellCharts } from './CellCharts';
 import { isLandscape } from '../utility';
 import {
     Series,
@@ -146,30 +153,13 @@ export class VirusChart
         );
 
         return {
-            legend: {
-                orient: 'horizontal',
-                bottom: '13%',
-                data: ['确诊', '疑似']
-            },
             title: {
-                text: area + '确诊/疑似患者人数',
-                top: '5%',
-                x: 'center'
-            },
-            grid: {
-                bottom: '25%',
-                left: 60
-            },
-            tooltip: {
-                trigger: 'axis'
+                text: area + '确诊/疑似患者人数'
             },
             xAxis: {
-                name: '日期',
-                type: 'time',
                 nameTextStyle: {
                     fontSize: this.fixChartFontSize(9)
                 },
-                nameGap: 5,
                 axisLabel: {
                     textStyle: {
                         fontSize: this.fixChartFontSize(7)
@@ -182,11 +172,9 @@ export class VirusChart
                 }
             },
             yAxis: {
-                name: '人数',
                 nameTextStyle: {
                     fontSize: this.fixChartFontSize(9)
                 },
-                nameGap: 10,
                 axisLabel: {
                     textStyle: {
                         fontSize: this.fixChartFontSize(7)
@@ -195,25 +183,16 @@ export class VirusChart
             },
             series: [
                 {
-                    name: '确诊',
                     data: confirmedData,
-                    type: 'line',
-                    stack: '总量',
                     symbolSize: SYMOBL_SIZE,
-                    lineStyle: { width: LINE_WIDTH },
-                    areaStyle: { color: '#f6bdcd' }
+                    lineStyle: { width: LINE_WIDTH }
                 },
                 {
-                    name: '疑似',
                     data: suspectedData,
-                    type: 'line',
-                    stack: '总量',
                     symbolSize: SYMOBL_SIZE,
-                    lineStyle: { width: LINE_WIDTH },
-                    areaStyle: { color: '#f9e4ba' }
+                    lineStyle: { width: LINE_WIDTH }
                 }
-            ],
-            color: ['#c22b49', '#cca42d']
+            ]
         } as EChartsOption;
     }
 
@@ -231,25 +210,13 @@ export class VirusChart
         );
 
         return {
-            tooltip: {
-                trigger: 'axis'
-            },
             title: {
-                text: area + '治愈/死亡患者人数',
-                top: '5%',
-                x: 'center'
-            },
-            grid: {
-                bottom: '25%',
-                left: 60
+                text: area + '治愈/死亡患者人数'
             },
             xAxis: {
-                name: '日期',
-                type: 'time',
                 nameTextStyle: {
                     fontSize: this.fixChartFontSize(9)
                 },
-                nameGap: 5,
                 axisLabel: {
                     textStyle: {
                         fontSize: this.fixChartFontSize(7)
@@ -262,43 +229,31 @@ export class VirusChart
                 }
             },
             yAxis: {
-                name: '人数',
                 nameTextStyle: {
                     fontSize: this.fixChartFontSize(9)
                 },
-                nameGap: 10,
                 axisLabel: {
                     textStyle: {
                         fontSize: this.fixChartFontSize(7)
                     }
                 }
             },
-            legend: {
-                orient: 'horizontal',
-                bottom: '13%',
-                data: ['治愈', '死亡']
-            },
             series: [
                 {
-                    name: '治愈',
                     data: curedData,
-                    type: 'line',
                     symbolSize: SYMOBL_SIZE,
                     lineStyle: { width: LINE_WIDTH }
                 },
                 {
-                    name: '死亡',
                     data: deadData,
-                    type: 'line',
                     symbolSize: SYMOBL_SIZE,
                     lineStyle: { width: LINE_WIDTH }
                 }
-            ],
-            color: ['#2dce89', '#86868d']
+            ]
         } as EChartsOption;
     }
 
-    connectedCallback() {
+    mountedCallback() {
         this.classList.add('d-flex', 'flex-column');
     }
 
@@ -312,24 +267,49 @@ export class VirusChart
 
         return (
             <>
-                <CellCharts
+                <ec-svg-renderer
                     className="w-100 h-50"
-                    chartOptions={this.getConfirmedSuspectChartOptions(
-                        orderedProvincesData,
-                        orderedCountryData,
-                        area,
-                        path
-                    )}
-                />
-                <CellCharts
+                    color={['#c22b49', '#cca42d']}
+                >
+                    <ec-title text="确诊/疑似患者人数" top="5%" x="center" />
+                    <ec-legend
+                        orient="horizontal"
+                        bottom="13%"
+                        data={['确诊', '疑似']}
+                    />
+                    <ec-grid bottom="25%" left={60} />
+                    <ec-x-axis name="日期" type="time" nameGap={5} />
+                    <ec-y-axis name="人数" nameGap={10} />
+                    <ec-line-chart
+                        name="确诊"
+                        stack="总量"
+                        areaStyle={{ color: '#f6bdcd' }}
+                    />
+                    <ec-line-chart
+                        name="疑似"
+                        stack="总量"
+                        areaStyle={{ color: '#f9e4ba' }}
+                    />
+                    <ec-tooltip trigger="axis" />
+                </ec-svg-renderer>
+
+                <ec-svg-renderer
                     className="w-100 h-50"
-                    chartOptions={this.getCuredDeadChartOptions(
-                        orderedProvincesData,
-                        orderedCountryData,
-                        area,
-                        path
-                    )}
-                />
+                    color={['#2dce89', '#86868d']}
+                >
+                    <ec-title text="治愈/死亡患者人数" top="5%" x="center" />
+                    <ec-legend
+                        orient="horizontal"
+                        bottom="13%"
+                        data={['治愈', '死亡']}
+                    />
+                    <ec-grid bottom="25%" left={60} />
+                    <ec-x-axis name="日期" type="time" nameGap={5} />
+                    <ec-y-axis name="人数" nameGap={10} />
+                    <ec-line-chart name="治愈" />
+                    <ec-line-chart name="死亡" />
+                    <ec-tooltip trigger="axis" />
+                </ec-svg-renderer>
             </>
         );
     }
