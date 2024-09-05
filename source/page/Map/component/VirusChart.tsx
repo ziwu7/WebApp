@@ -1,4 +1,5 @@
 import { WebCell, component, attribute, observer } from 'web-cell';
+import { formatDate } from 'web-utility';
 import { observable } from 'mobx';
 import { EChartsOption } from 'echarts';
 import 'echarts-jsx/dist/renderers/SVG';
@@ -37,6 +38,10 @@ const LINE_WIDTH = 5,
 
 export interface VirusChart extends WebCell<VirusChartProps> {}
 
+interface DataItem
+    extends Record<'confirmed' | 'suspected' | 'cured' | 'dead', number> {
+    updateTime: Date;
+}
 /**
  * WebCell 疫情数据折线图可视化组件
  *
@@ -253,10 +258,20 @@ export class VirusChart
         } as EChartsOption;
     }
 
+    transformData(orderedCountryData: DataItem[]) {
+        return orderedCountryData.map(
+            ({ updateTime, confirmed, suspected, cured, dead }) => ({
+                date: new Date(formatDate(updateTime, 'YYYY/MM')),
+                confirmed,
+                suspected,
+                cured,
+                dead
+            })
+        );
+    }
     mountedCallback() {
         this.classList.add('d-flex', 'flex-column');
     }
-
     render() {
         const { data, area, path } = this.props;
 
@@ -264,6 +279,21 @@ export class VirusChart
                 data.provincesSeries
             ),
             orderedCountryData = this.getOrderedTimeData(data.countrySeries);
+
+        const transformedCounts = this.transformData(orderedCountryData);
+        const confirmedCount = transformedCounts.map(item => [
+            item.date,
+            item.confirmed
+        ]);
+        const suspectedCount = transformedCounts.map(item => [
+            item.date,
+            item.suspected
+        ]);
+        const curedCount = transformedCounts.map(item => [
+            item.date,
+            item.cured
+        ]);
+        const deadCount = transformedCounts.map(item => [item.date, item.dead]);
 
         return (
             <>
@@ -284,11 +314,13 @@ export class VirusChart
                         name="确诊"
                         stack="总量"
                         areaStyle={{ color: '#f6bdcd' }}
+                        data={confirmedCount}
                     />
                     <ec-line-chart
                         name="疑似"
                         stack="总量"
                         areaStyle={{ color: '#f9e4ba' }}
+                        data={suspectedCount}
                     />
                     <ec-tooltip trigger="axis" />
                 </ec-svg-renderer>
@@ -306,8 +338,8 @@ export class VirusChart
                     <ec-grid bottom="25%" left={60} />
                     <ec-x-axis name="日期" type="time" nameGap={5} />
                     <ec-y-axis name="人数" nameGap={10} />
-                    <ec-line-chart name="治愈" />
-                    <ec-line-chart name="死亡" />
+                    <ec-line-chart name="治愈" data={curedCount} />
+                    <ec-line-chart name="死亡" data={deadCount} />
                     <ec-tooltip trigger="axis" />
                 </ec-svg-renderer>
             </>

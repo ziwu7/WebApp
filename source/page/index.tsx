@@ -31,7 +31,6 @@ const HospitalPage = lazy(() => import('./Hospital')),
     UserAdmin = lazy(() => import('./Admin/User')),
     CommunityPage = lazy(() => import('./Community')),
     MapsPage = lazy(() => import('./Map'));
-
 const userMenu = [
     {
         title: '管理',

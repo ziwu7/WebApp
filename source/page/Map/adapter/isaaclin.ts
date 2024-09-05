@@ -102,8 +102,7 @@ export function convertProvincesSeries(
     );
 
     for (const item of source) {
-        const t = roundTime(+item.updateTime, resolution);
-
+        const t = roundTime(+new Date(item.updateTime), resolution);
         if (res[t] === undefined) res[t] = {};
 
         const prov = convertProvince(item);
@@ -146,5 +145,8 @@ export const convertCountrySeries = (
     resolution: number
 ): Series<CountryOverviewData> =>
     Object.fromEntries(
-        source.map(item => [roundTime(+item.updateTime, resolution), item])
+        source.map(item => [
+            roundTime(+new Date(item.updateTime), resolution),
+            item
+        ])
     );

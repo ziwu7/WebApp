@@ -19,7 +19,7 @@
         "classnames": "^2.5.1",
         "dom-renderer": "^2.1.8",
         "echarts": "^5.5.0",
-        "echarts-jsx": "^1.2.0",
+        "echarts-jsx": "^1.2.1",
         "github-web-widget": "^4.0.0-rc.2",
         "koajax": "^1.1.2",
         "mobx": "^6.12.4",
@@ -47,6 +47,7 @@
         "parcel-transformer-markdown": "^3.0.1",
         "prettier": "^3.3.2",
         "process": "^0.11.10",
+        "rimraf": "^6.0.1",
         "tsx": "^4.15.6",
         "typescript": "~5.4.5",
         "workbox-cli": "^7.1.0"
@@ -73,7 +74,7 @@
     "scripts": {
         "prepare": "husky",
         "test": "lint-staged  &&  tsc --noEmit",
-        "clean": "rm -rf .parcel-cache/ dist/",
+        "clean": "rimraf .parcel-cache/ dist/",
         "start:local": "npm run clean  &&  cross-env HTTP_ENV=local  parcel source/index.html --open",
         "start:remote": "npm run clean  &&  cross-env HTTP_ENV=remote  parcel source/index.html --open",
         "start": "npm run clean  &&  cross-env HTTP_ENV=test  parcel source/index.html --open",
