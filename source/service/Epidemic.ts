@@ -85,9 +85,18 @@ export async function getOverall() {
 
     return body;
 }
+export async function getHistory(date = '2022-09-01') {
+    const startOfDay = `${date}T00:00:00`;
+    const endOfDay = `${date}T23:59:59`;
 
-export async function getHistory() {
-    const { body } = await epidemic.get<AreaData[]>('Area', { Range: '0-199' });
+    const { body } = await epidemic.get<AreaData[]>(
+        `Area?${new URLSearchParams([
+            ['updateTime', `gt.${startOfDay}`],
+            ['updateTime', `lt.${endOfDay}`],
+            ['countryName', 'eq.中国'],
+            ['limit', '299']
+        ])}`
+    );
 
     const updatedBody = body.map(item => ({
         id: item.id,

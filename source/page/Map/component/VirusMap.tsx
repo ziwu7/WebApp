@@ -1,6 +1,6 @@
 import { WebCell, component, attribute, observer } from 'web-cell';
 import { observable } from 'mobx';
-import { Hour } from 'web-utility';
+import { Day, Hour } from 'web-utility';
 
 import { EChartsMapProps, EChartsMap } from './EChartsMap';
 import { VirusChart } from './VirusChart';
@@ -238,6 +238,14 @@ export class VirusMap extends HTMLElement implements WebCell<VirusMapProps> {
         return options;
     };
 
+    get timelineData() {
+        const startDate = +new Date('2022-09-01');
+        const endDate = +new Date('2022-09-28');
+        return Array.from(
+            { length: (endDate - startDate) / Day + 1 },
+            (_, i) => startDate + Day * i
+        );
+    }
     getSTChartOptions = (data: STMapDataType, options?: any) => {
         options ||= this.baseOptions(this.name, this.breaks);
         options['timeline'] = {
@@ -246,7 +254,7 @@ export class VirusMap extends HTMLElement implements WebCell<VirusMapProps> {
             tooltip: {},
             playInterval: 1500,
             currentIndex: data.timeline.length - 1,
-            data: data.timeline,
+            data: this.timelineData,
             left: 'left',
             right: 0,
             label: {
@@ -264,7 +272,8 @@ export class VirusMap extends HTMLElement implements WebCell<VirusMapProps> {
                 }
             }
         };
-        const sortedTimeline = data.timeline.slice().sort();
+
+        const sortedTimeline = [...data.timeline].sort();
 
         return {
             baseOption: options,

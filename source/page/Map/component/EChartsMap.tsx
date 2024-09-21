@@ -2,7 +2,9 @@ import { DataObject } from 'dom-renderer';
 import { WebCell, component, attribute, observer } from 'web-cell';
 import { observable } from 'mobx';
 import { EChartsOption, EChartsType, init, registerMap } from 'echarts';
+import { formatDate } from 'web-utility';
 
+import { getHistory, Province } from '../../../service/Epidemic';
 import { long2short } from '../adapter';
 
 export interface EChartsMapProps {
@@ -92,13 +94,17 @@ export class EChartsMap
                     hovered = '';
                 }
             })
-            .on('click', 'timeline', ({ dataIndex }) =>
+            .on('click', 'timeline', async ({ dataIndex }) => {
+                const formattedDate = formatDate(dataIndex, 'YYYY-MM-DD');
                 chart.dispatchAction({
                     type: 'timelineChange',
                     // index of time point
                     currentIndex: data.findIndex(d => d === dataIndex)
-                })
-            );
+                });
+                const newData = await getHistory(formattedDate);
+
+                this.updateChartData(newData);
+            });
     }
 
     async loadData() {
@@ -118,5 +124,17 @@ export class EChartsMap
         this.adjustLabel();
 
         chart.hideLoading();
+    }
+    updateChartData(newData: Province[]) {
+        this.chart.setOption({
+            series: [
+                {
+                    data: newData.map(item => ({
+                        name: item.provinceShortName,
+                        value: item.confirmedCount
+                    }))
+                }
+            ]
+        });
     }
 }
