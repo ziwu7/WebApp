@@ -1,3 +1,6 @@
+import 'echarts-jsx/dist/renderers/SVG';
+import 'echarts-jsx/dist/components/geo';
+
 import { DataObject } from 'dom-renderer';
 import { EChartsOption, EChartsType, init, registerMap } from 'echarts';
 import { observable } from 'mobx';
@@ -117,14 +120,21 @@ export class EChartsMap
             properties.name = long2short(properties.name);
 
         registerMap(mapName, data);
-
-        chart.setOption(chartOptions);
-
+    
+        this.renderChart(chartOptions);
         this.adjustLabel();
-
         chart.hideLoading();
     }
-
+    renderChart(chartOptions: EChartsOption) {
+        return (
+            <ec-svg-renderer >
+                <ec-geo
+                    map={this.mapName}
+                    data={chartOptions.options[0].series[0]?.data}
+                />
+            </ec-svg-renderer>
+        );
+    }
     updateChartData = (newData: Province[]) =>
         this.chart.setOption({
             series: [
