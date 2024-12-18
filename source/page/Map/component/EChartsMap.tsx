@@ -110,7 +110,7 @@ export class EChartsMap
     }
 
     async loadData() {
-        const { chart, mapUrl, mapName, chartOptions } = this;
+        const { chart, mapUrl, mapName } = this;
 
         chart.showLoading();
 
