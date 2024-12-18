@@ -110,7 +110,7 @@ export class EChartsMap
     }
 
     async loadData() {
-        const { chart, mapUrl, mapName, chartOptions } = this;
+        const { chart, mapUrl, mapName } = this;
 
         chart.showLoading();
 
@@ -121,16 +121,17 @@ export class EChartsMap
 
         registerMap(mapName, data);
     
-        this.renderChart(chartOptions);
         this.adjustLabel();
         chart.hideLoading();
     }
-    renderChart(chartOptions: EChartsOption) {
+    render() {
+        const options = this.chartOptions;
+
         return (
-            <ec-svg-renderer >
+            <ec-svg-renderer>
                 <ec-geo
                     map={this.mapName}
-                    data={chartOptions.options[0].series[0]?.data}
+                    data={options.options[0].series[0]?.data}
                 />
             </ec-svg-renderer>
         );
