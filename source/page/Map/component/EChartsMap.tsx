@@ -121,7 +121,6 @@ export class EChartsMap
 
         registerMap(mapName, data);
     
-        this.chart.setOption(chartOptions);
         this.adjustLabel();
         chart.hideLoading();
     }
